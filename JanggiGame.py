@@ -130,6 +130,7 @@ class JanggiGame:
         move to be out of the check state. If no escape, set _checkmate True and update game state.
         """
         self._captured = []
+
         # go through the board and check all possible moves for the player's piece
         for x in range(0, 10):
             for y in range(0, 9):
@@ -173,7 +174,7 @@ class JanggiGame:
 
         # returns all possible moves of the general
         self.call_moves("K")
-        print("whose turn", self.get_turn(), "is_checkmate? possible move of general = ", self._moves)
+        # print("whose turn", self.get_turn(), "is_checkmate? possible move of general = ", self._moves)
 
         for (x, y) in self._moves:
             copied_board = copy.deepcopy(self._board)
@@ -181,7 +182,7 @@ class JanggiGame:
             # make the move
             self._board[x][y] = self._curr_piece
             self._board[row][col] = "OO"
-            print("virtual general move =", self._board[row][col], self._board[x][y])
+            # print("virtual general move =", self._board[row][col], self._board[x][y])
 
             # if still in check
             self.is_check()
@@ -206,7 +207,6 @@ class JanggiGame:
 
                     for i in range(len(self._captured)):
                         if self._captured == self._threat:
-                            print("test")
                             self._checkmate = False
                         else:
                             self._checkmate = True
@@ -252,16 +252,16 @@ class JanggiGame:
         if necessary, update whose turn it is, and return True.
         A player cannot make a move that puts or leaves their general in check.
         """
-        print("whose turn?", self.get_turn())  # testing
+        # print("whose turn?", self.get_turn())  # testing
 
         if self._game_state != "UNFINISHED":
-            print("game already won")
+            # print("game already won")
             return False
 
         # two passed strings are the same, the player passes its turn
         if move_from == move_to:
             self._turn_count += 1
-            print("two positions are the same, the player passes its turn")
+            # print("two positions are the same, the player passes its turn")
             return True
 
         else:
@@ -283,43 +283,43 @@ class JanggiGame:
                     self._des_idx = [x, y]
                     break
 
-            print("before move =", self._curr_piece, self._des_piece)
-            print("index = ", self._curr_idx, self._des_idx)
+            # print("before move =", self._curr_piece, self._des_piece)
+            # print("index = ", self._curr_idx, self._des_idx)
 
             if self.get_turn() != self._curr_piece[0]:
-                print("the starting pos doesn't have the player's piece")
+                # print("the starting pos doesn't have the player's piece")
                 return False
             if self.get_turn() == self._des_piece[0]:
-                print("the destination pos has the player's own piece")
+                # print("the destination pos has the player's own piece")
                 return False
 
             # get all moves for the current piece
             self.call_moves(self._curr_piece[1])
-            print(self._moves)
+            # print(self._moves)
 
             # if move_to position is one of the possible moves, the move is valid
             if (self._des_idx[0], self._des_idx[1]) in self._moves:
 
                 # save the current board
                 copied_board = copy.deepcopy(self._board)
-                print("copied board", copied_board)
+                # print("copied board", copied_board)
                 # make the indicated move
                 self._board[x][y] = self._curr_piece
                 self._board[i][j] = "OO"
-                print("after move =", self._board[i][j], self._board[x][y])
+                # print("after move =", self._board[i][j], self._board[x][y])
 
                 # check if the opponent is in check
                 # if the player's next move can capture the opposing general
                 self.is_check()
-                print("blue is_in_check?", self.is_in_check("blue"))
-                print("red is_in_check?", self.is_in_check("red"))
+                # print("blue is_in_check?", self.is_in_check("blue"))
+                # print("red is_in_check?", self.is_in_check("red"))
 
                 # if the move puts or leaves the player's general in check, return False
                 if self.is_selfcheck() is True:
                     # revert the board
-                    print("copied board2", copied_board)
+                    # print("copied board2", copied_board)
                     self._board = copied_board
-                    print("invalid move - the move puts or leaves the player's general in check.")
+                    # print("invalid move - the move puts or leaves the player's general in check.")
                     return False
 
                 self._turn_count += 1
@@ -375,6 +375,8 @@ class JanggiGame:
                     # add opponent pieces that can be captured to _captured list
                     if occupant[0] == self.get_opponent():
                         self._captured.append(occupant)
+                        move = (row + x, col + y)
+                        self._moves.append(move)
 
                 else:
                     move = (row + x, col + y)
@@ -503,7 +505,7 @@ class JanggiGame:
                         i += 1
                     elif occupant[0] == self.get_opponent():
                         valid_direction.append((x * i, y * i))
-                        print(valid_direction)
+                        # print(valid_direction)
                         break
                     else:
                         break
@@ -515,12 +517,13 @@ class JanggiGame:
         """ Returns all possible moves for Cannon piece """
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         valid_direction = []
-        jumpover_piece = None
+
         row = self._curr_idx[0]
         col = self._curr_idx[1]
 
         for (x, y) in directions:
             i = 1
+            jumpover_piece = None
             while row + (x * i) in range(10) and col + (y * i) in range(9):
                 occupant = self.get_piece(row + (x * i), col + (y * i))
 
@@ -545,7 +548,7 @@ class JanggiGame:
                     # if occupied by opponent, add the direction and break
                     elif occupant[0] == self.get_opponent() and occupant[1] != "N":
                         valid_direction.append((x * i, y * i))
-                        print(valid_direction)
+                        # print(valid_direction)
                         break
                     else:
                         break
@@ -558,7 +561,7 @@ class JanggiGame:
         if (row, col) in diag_pos:
 
             for (x, y) in directions:
-                while (row + (x * 2), col + (y * 2)) in diag_pos:
+                if (row + (x * 2), col + (y * 2)) in diag_pos:
                     occupant = self.get_piece(row + x, col + y)
                     corner_piece = self.get_piece(row + (x * 2), col + (y * 2))
 
@@ -609,15 +612,11 @@ def main():
     # print(game.get_game_state())
     game.get_base_board()
     game.get_board()
-    print(game.make_move("a10", "a9"))  # blue turn
-    print(game.make_move("i4", "h4"))  # red turn
-    print(game.make_move("a9", "d9"))  # blue turn
-    print(game.make_move("i1", "i5"))  # red turn
-    print(game.make_move("d9", "d8"))  # blue turn
-    print(game.make_move("i5", "f5"))  # red turn
     print(game.make_move("e9", "e8"))  # blue turn
+    print(game.make_move("c4", "c5"))  # red turn
     game.get_board()
-    print(game.make_move("f5", "f8"))  # red turn - checkmate (red won)
+    print(game.make_move("h8", "d8"))  # blue turn
+
     print(game.get_game_state())
     # print(game.get_game_state())
     game.get_board()
