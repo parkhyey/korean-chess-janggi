@@ -154,13 +154,13 @@ class JanggiGame:
         If there is no escape, it's checkmate.
         Sets _checkmate to True, sets the game state and the game is over.
         """
-        move_from_piece = None
+        general = None
 
         # get the general's current position
         for i in range(1, 10):
             for j in range(1, 9):
                 if self._board[i][j] == self.get_player() + "K":
-                    move_from_piece = self._board[i][j]
+                    general = self._board[i][j]
                     self._move_from_idx = [i, j]
                     break
                 j += 1
@@ -177,7 +177,7 @@ class JanggiGame:
 
         for (x, y) in self._moves:
             # make the general's move
-            self._board[x][y] = move_from_piece
+            self._board[x][y] = general
             self._board[row][col] = "OO"
 
             # check if still in check, if not, it's not checkmate
@@ -243,10 +243,10 @@ class JanggiGame:
                     self._move_from_idx = [x, y]
                     self.call_moves(piece_initial)
                     self._move_from_idx = temp_idx    # revert the index
-                    self._turn_count -= 1   # switch player back
+                    self._turn_count -= 1             # switch player back
 
                     # if general is captured, the move puts or leaves the player's general in check.
-                    # the move is invalid
+                    # is_selfcheck returns True meaning the move is invalid
                     for i in range(len(self._captured)):
                         if self._captured[i][1] == "K" and self._captured[i][0] == self.get_player():
                             return True
