@@ -80,10 +80,6 @@ class JanggiGame:
         print()
         print("-----------------------------------")
 
-    def set_board(self, board):
-        """ Sets the current board with the given board """
-        self._board = board
-
     def get_game_state(self):
         """ Returns game state """
         return self._game_state
@@ -130,7 +126,6 @@ class JanggiGame:
         Generate all possible moves of all the player's pieces.
         If any pieces can capture the opponent's general, sets _check to the opponent.
         """
-        self._check = False         # reset _check
         self._captured = ["OO"]     # reset captured list
 
         # go through the board and check all possible moves for the player's piece
@@ -138,18 +133,19 @@ class JanggiGame:
             for y in range(0, 9):
                 if self._board[x][y][0] == self.get_player():
                     piece_initial = self._board[x][y][1]
-
+                    print("who's capturing?", self._board[x][y], x, y)
                     # save the current piece's index
                     temp_idx = self._move_from_idx
                     self._move_from_idx = [x, y]
                     self.call_moves(piece_initial)
                     # revert the index
                     self._move_from_idx = temp_idx
-
+                    print("whose in captured here?1", self._captured)
                     # if the opponent's general is captured, the opponent is in check
                     for i in range(len(self._captured)):
                         if self._captured[i][1] == "K" and self._captured[i][0] == self.get_opponent():
                             self._check = self.get_opponent()
+                            print("whose in check here?2", self._check)
 
     def is_checkmate(self):
         """
@@ -254,6 +250,7 @@ class JanggiGame:
                     # the move is invalid
                     for i in range(len(self._captured)):
                         if self._captured[i][1] == "K" and self._captured[i][0] == self.get_player():
+                            print("cannot leave self in check")
                             return True
 
         return False
@@ -271,6 +268,7 @@ class JanggiGame:
         """
         move_from_piece = None
         move_to_piece = None
+        temp_check = False    # saves whose in check before running is_check method
 
         if self._game_state != "UNFINISHED":
             return False
@@ -321,12 +319,14 @@ class JanggiGame:
                 self._board[i][j] = "OO"
 
                 # check if the opponent's general is in check
+                temp_check = self._check    # save whose in check
                 self.is_check()
 
                 # check if the move puts or leaves the player's general in check
                 if self.is_selfcheck() is True:
                     # if yes, revert the board and return False
                     self._board = copied_board
+                    self._check = temp_check  # revert whose in check for False move
                     return False
 
                 # update the turn
@@ -339,6 +339,8 @@ class JanggiGame:
                     self.is_checkmate()
 
                 # the move is valid
+                print("blue in check?", self.is_in_check("blue"))
+                print("red in check?", self.is_in_check("red"))
                 return True
 
             return False
@@ -653,9 +655,13 @@ def main():
     print(game.make_move("d9", "d8"))  # blue turn
     print(game.make_move("i5", "f5"))  # red turn
     print(game.make_move("e9", "e8"))  # blue turn
-
+    print(game.make_move("e4", "e5"))  # red turn
+    print(game.make_move("e7", "e6"))  # blue turn
+    print(game.make_move("e5", "e6"))  # red turn
+    print(game.make_move("d8", "d2"))  # blue turn
+    print(game.make_move("e6", "e7"))  # red turn
     game.get_board()
-    print(game.make_move("f5", "f8"))  # red turn
+
     game.get_board()
     print("blue in check?", game.is_in_check("blue"))
     print("red in check?", game.is_in_check("red"))
