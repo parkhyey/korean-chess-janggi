@@ -33,8 +33,8 @@ class JanggiGame:
             ["a10", "b10", "c10", "d10", "e10", "f10", "g10", "h10", "i10"],
         ]
 
-        # RC=RedChariot, RE=RedElephant, RH=RedHorse, RG=RedGuard, RK=RedGeneral, RN=RedCannon, RS=RedSoldier
-        # BC=BlueChariot, BE=BlueElephant, BH=BlueHorse, BG=BlueGuard, BK=BlueGeneral, BN=BlueCannon, BS=BlueSoldier
+        # RC=RedChariot, RE=RedElephant, RH=RedHorse, RG=RedGuard, *RK=RedGeneral, *RN=RedCannon, RS=RedSoldier
+        # BC=BlueChariot, BE=BlueElephant, BH=BlueHorse, BG=BlueGuard, *BK=BlueGeneral, *BN=BlueCannon, BS=BlueSoldier
         self._board = [
             ["RC", "RE", "RH", "RG", "OO", "RG", "RE", "RH", "RC"],
             ["OO", "OO", "OO", "OO", "RK", "OO", "OO", "OO", "OO"],
@@ -155,7 +155,6 @@ class JanggiGame:
         Sets _checkmate to True, sets the game state and the game is over.
         """
         move_from_piece = None
-        self._checkmate = True
 
         # get the general's current position
         for i in range(1, 10):
@@ -182,15 +181,16 @@ class JanggiGame:
             self._board[row][col] = "OO"
 
             # check if still in check, if not, it's not checkmate
-            self._turn_count += 1   # switch player for is_check test
-            temp_check = self._check
+            self._turn_count += 1       # switch player for is_check test
 
-            self.is_check()
+            temp_check = self._check    # save current _check
+            self._check = False         # reset _check
+            self.is_check()             # rerun is_check to see if still in check
             if self._check is False:
                 self._checkmate = False
 
             self._check = temp_check
-            self._turn_count -= 1   # switch player back
+            self._turn_count -= 1       # switch player back
 
             # if player in check doesn't match the current player
             if self._check != self.get_player():
@@ -249,7 +249,6 @@ class JanggiGame:
                     # the move is invalid
                     for i in range(len(self._captured)):
                         if self._captured[i][1] == "K" and self._captured[i][0] == self.get_player():
-                            print("cannot leave self in check")
                             return True
 
         return False
@@ -267,8 +266,7 @@ class JanggiGame:
         """
         move_from_piece = None
         move_to_piece = None
-        print("whose trun?", self.get_player())
-        print("from", move_from, "to", move_to)
+
         if self._game_state != "UNFINISHED":
             return False
 
@@ -325,7 +323,7 @@ class JanggiGame:
                 if self.is_selfcheck() is True:
                     # if yes, revert the board and return False
                     self._board = copied_board
-                    self._check = temp_check  # revert whose in check for False move
+                    self._check = temp_check  # is_selfcheck() is True, invalid move, revert _check
                     return False
 
                 # update the turn
@@ -338,7 +336,6 @@ class JanggiGame:
                     self.is_checkmate()
 
                 # the move is valid
-                print("blue in check?", self.is_in_check("blue"), "/ red in check?", self.is_in_check("red"))
                 return True
 
             return False
@@ -646,19 +643,25 @@ def main():
     game = JanggiGame()
     game.get_base_board()
     game.get_board()
-    print(game.make_move("a10", "a9"))  # blue turn
-    print(game.make_move("i4", "h4"))  # red turn
-    print(game.make_move("a9", "d9"))  # blue turn
-    print(game.make_move("i1", "i5"))  # red turn
-    print(game.make_move("d9", "d8"))  # blue turn
-    print(game.make_move("i5", "f5"))  # red turn
-    print(game.make_move("e9", "e8"))  # blue turn
-    print(game.make_move("e4", "e5"))  # red turn
+    print(game.make_move("c7", "c6"))  # blue turn
+    print(game.make_move("c1", "d3"))  # red turn
+    print(game.make_move("b10", "d7"))  # blue turn
+    print(game.make_move("b3", "e3"))  # red turn
+    print(game.make_move("c10", "d8"))  # blue turn
+    print(game.make_move("h1", "g3"))  # red turn
     print(game.make_move("e7", "e6"))  # blue turn
-    print(game.make_move("e5", "e6"))  # red turn
-    print(game.make_move("d8", "d2"))  # blue turn
-    print(game.make_move("e6", "e7"))  # red turn
+    print(game.make_move("e3", "e6"))  # red turn
+    print(game.make_move("h8", "c8"))  # blue turn
+    print(game.make_move("d3", "e5"))  # red turn
+    print(game.make_move("c8", "c4"))  # blue turn
+    print(game.make_move("e5", "c4"))  # red turn
+    print(game.make_move("i10", "i8"))  # blue turn
+    print(game.make_move("g4", "f4"))  # red turn
+    print(game.make_move("i8", "f8"))  # blue turn
+    print(game.make_move("g3", "h5"))  # red turn
+    print(game.make_move("h10", "g8"))  # blue turn
     game.get_board()
+    print(game.make_move("e6", "e3"))  # red turn
 
     game.get_board()
     print("blue in check?", game.is_in_check("blue"))
