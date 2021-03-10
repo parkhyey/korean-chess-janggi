@@ -1,5 +1,5 @@
 # Author: Hye Yeon Park
-# Date: 03/08/2021
+# Date: 03/09/2021
 # Description: [CS 162 Portfolio Project] This program is to simulate an abstract board game called Janggi.
 # It is played on a board nine lines wide by ten lines long with Blue and Red as the competing players and
 # Blue as the starting player. The game ends when one player checkmates the other's general.
@@ -133,19 +133,18 @@ class JanggiGame:
             for y in range(0, 9):
                 if self._board[x][y][0] == self.get_player():
                     piece_initial = self._board[x][y][1]
-                    print("who's capturing?", self._board[x][y], x, y)
+
                     # save the current piece's index
                     temp_idx = self._move_from_idx
                     self._move_from_idx = [x, y]
                     self.call_moves(piece_initial)
                     # revert the index
                     self._move_from_idx = temp_idx
-                    print("whose in captured here?1", self._captured)
+
                     # if the opponent's general is captured, the opponent is in check
                     for i in range(len(self._captured)):
                         if self._captured[i][1] == "K" and self._captured[i][0] == self.get_opponent():
                             self._check = self.get_opponent()
-                            print("whose in check here?2", self._check)
 
     def is_checkmate(self):
         """
@@ -268,8 +267,8 @@ class JanggiGame:
         """
         move_from_piece = None
         move_to_piece = None
-        temp_check = False    # saves whose in check before running is_check method
-
+        print("whose trun?", self.get_player())
+        print("from", move_from, "to", move_to)
         if self._game_state != "UNFINISHED":
             return False
 
@@ -339,8 +338,7 @@ class JanggiGame:
                     self.is_checkmate()
 
                 # the move is valid
-                print("blue in check?", self.is_in_check("blue"))
-                print("red in check?", self.is_in_check("red"))
+                print("blue in check?", self.is_in_check("blue"), "/ red in check?", self.is_in_check("red"))
                 return True
 
             return False
