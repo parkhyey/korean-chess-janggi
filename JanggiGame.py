@@ -57,6 +57,7 @@ class JanggiGame:
         self._moves = []            # all possible moves of the given piece as index of destination
         self._captured = ["OO"]
         self._threat = None         # threatening piece for the general
+        self._threat_idx = []       # threatening piece index
 
     def get_board(self):
         """ Print out the current board for testing purpose """
@@ -149,14 +150,19 @@ class JanggiGame:
     def is_checkmate(self):
         """
         Checks if the general in check can escape in the next move.
-        First check if the general can move away or capture the threatening piece
-        If not, check if any pieces can capture the threatening piece.
+        First sets checkmate and then finds a way to escape.
+        Checks if the general can move away or capture the threatening piece.
+        If still checkmate, check if any pieces can capture the threatening piece.
+        If still checkmate, check if any pieces can block the threatening piece.
         If there is no escape, it's checkmate.
         Sets _checkmate to True, sets the game state and the game is over.
         """
-        general = None
+        # whose turn? player in check
+        # set checkmate
+        self._checkmate = True
 
         # get the general's current position
+        general = None
         for i in range(1, 10):
             for j in range(1, 9):
                 if self._board[i][j] == self.get_player() + "K":
@@ -219,9 +225,89 @@ class JanggiGame:
                             break
                         # if not, continue the loop
 
-        # if checkmate, set the game state
+        # if still checkmate, check if other pieces can block the threatening piece
+        if self._checkmate:
+            if self.check_block(row, col):   # push general's index
+                self._checkmate = False
+
+        # if still checkmate, set the game state and game is over
         if self._checkmate:
             self.set_game_state()
+
+    def check_block(self, row, col):
+        """
+        Helper function for is_checkmate.
+        Receives general's index and checks if any non-general pieces can block the path
+        of the threatening piece and the player's general
+        """
+        # whose turn? player in check
+        between_positions = []
+        gr = row                  # general's row index
+        gc = col                  # general's column index
+        tr = self._threat_idx[0]  # threatening piece's row index
+        tc = self._threat_idx[1]  # threatening piece's column index
+
+        # if the threatening piece is Cannon(N) or Chariot(C)
+        if self._threat[1] == "N" or self._threat[1] == "C":
+            # save the between positions between cannon and the general in check
+            # check if any piece can block the path
+
+            if tc == gc:    # the move is vertical
+                direction = (tr - gr) / abs(tr - gr)
+                for i in range(abs(tr - gr)):
+                    occupied_piece = self.get_piece(int(tr - direction * (i + 1)), gc)
+                    if occupied_piece == "OO":
+                        between_positions.append((int(tr - direction * (i + 1)), gc))
+
+            if tr == gr:    # the move is horizontal
+                direction = (tc - gc) / abs(tc - gc)
+                for i in range(abs(tc - gc)):
+                    occupied_piece = self.get_piece(gr, int(tc - direction * (i + 1)))
+                    if occupied_piece == "OO":
+                        between_positions.append((gr, int(tc - direction * (i + 1))))
+
+        # if the threatening piece is Horse(H)
+        if self._threat[1] == "H":
+            # calculate the between position based on the threatening piece and the general's positions
+
+            # check if the move is vertical
+            if abs(tr - gr) > abs(tc - gc):
+                between_positions.append((tr - int((tr - gr) / 2), tc))
+
+            else:   # move is horizontal
+                between_positions.append((tr, tc - int((tc - gc) / 2)))
+
+        # if the threatening piece is Elephant(E)
+        if self._threat[1] == "E":
+            # calculate the between positions based on the threatening piece and the general's positions
+
+            # check if the move is vertical
+            if abs(tr - gr) > abs(tc - gc):
+                between_positions.append((tr - int((tr - gr) / 3), tc))
+                between_positions.append((tr - int((tr - gr) * 2 / 3), tc - int((tc - gc) / 2)))
+
+            else:   # move is horizontal
+                between_positions.append((tr, tc - int((tc - gc) / 3)))
+                between_positions.append((tr - int((tr - gr) / 2), tc - int((tc - gc) * 2 / 3)))
+
+        # go through the board and check if any pieces can block the path
+        for x in range(0, 10):
+            for y in range(0, 9):
+                occupant = self.get_piece(x, y)
+
+                # check with all player's pieces except the general
+                if occupant[0] == self.get_player() and occupant[1] != "K":
+                    piece_initial = self._board[x][y][1]
+
+                    # save the current piece's index
+                    temp_idx = self._move_from_idx
+                    self._move_from_idx = [x, y]
+                    self.call_moves(piece_initial)
+                    self._move_from_idx = temp_idx    # revert the index
+
+                    for pos in between_positions:
+                        if pos in self._moves:
+                            return True
 
     def is_selfcheck(self):
         """
@@ -334,6 +420,7 @@ class JanggiGame:
                 if self._check:
                     # save the threatening piece to use it in is_checkmate
                     self._threat = self._board[x][y]
+                    self._threat_idx = [x, y]
                     self.is_checkmate()
 
                 # the move is valid
@@ -644,24 +731,10 @@ def main():
     game = JanggiGame()
     game.get_base_board()
     game.get_board()
-    print(game.make_move("c7", "c6"))  # blue turn
-    print(game.make_move("c1", "d3"))  # red turn
-    print(game.make_move("b10", "d7"))  # blue turn
-    print(game.make_move("b3", "e3"))  # red turn
-    print(game.make_move("c10", "d8"))  # blue turn
-    print(game.make_move("h1", "g3"))  # red turn
-    print(game.make_move("e7", "e6"))  # blue turn
-    print(game.make_move("e3", "e6"))  # red turn
-    print(game.make_move("h8", "c8"))  # blue turn
-    print(game.make_move("d3", "e5"))  # red turn
-    print(game.make_move("c8", "c4"))  # blue turn
-    print(game.make_move("e5", "c4"))  # red turn
-    print(game.make_move("i10", "i8"))  # blue turn
-    print(game.make_move("g4", "f4"))  # red turn
-    print(game.make_move("i8", "f8"))  # blue turn
-    print(game.make_move("g3", "h5"))  # red turn
-    print(game.make_move("h10", "g8"))  # blue turn
-    print(game.make_move("e6", "e3"))  # red turn
+    print("1", game.make_move("c7", "d7"))  # blue turn
+    print("2", game.make_move("b1", "d4"))  # red turn
+    print("3", game.make_move("h10", "g8"))  # blue turn
+    print("4", game.make_move("d4", "b7"))  # red turn
     game.get_board()
     print("blue in check?", game.is_in_check("blue"))
     print("red in check?", game.is_in_check("red"))
