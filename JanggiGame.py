@@ -266,6 +266,7 @@ class JanggiGame:
         """
         move_from_piece = None
         move_to_piece = None
+        self._check = False     # reset _check
 
         if self._game_state != "UNFINISHED":
             return False
@@ -660,9 +661,7 @@ def main():
     print(game.make_move("i8", "f8"))  # blue turn
     print(game.make_move("g3", "h5"))  # red turn
     print(game.make_move("h10", "g8"))  # blue turn
-    game.get_board()
     print(game.make_move("e6", "e3"))  # red turn
-
     game.get_board()
     print("blue in check?", game.is_in_check("blue"))
     print("red in check?", game.is_in_check("red"))
