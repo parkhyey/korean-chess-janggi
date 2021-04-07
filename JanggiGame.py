@@ -116,8 +116,10 @@ class JanggiGame:
         but returns False otherwise.
         """
         if self._check == "B" and player == "blue":
+            print("Blue general is in check!")
             return True
         elif self._check == "R" and player == "red":
+            print("Red general is in check!")
             return True
         return False
 
@@ -157,7 +159,7 @@ class JanggiGame:
         If there is no escape, it's checkmate.
         Sets _checkmate to True, sets the game state and the game is over.
         """
-        # whose turn? player in check
+        # whose turn at this point = player in check
         # set checkmate
         self._checkmate = True
 
@@ -355,6 +357,7 @@ class JanggiGame:
         self._check = False     # reset _check
 
         if self._game_state != "UNFINISHED":
+            print("Invalid move! The game is already over.")
             return False
 
         # two passed strings are the same, the player passes its turn and return True
@@ -383,10 +386,12 @@ class JanggiGame:
 
             # the move_from position doesn't have the player's piece
             if self.get_player() != move_from_piece[0]:
+                print("Invalid move! The starting position doesn't have the player's piece.")
                 return False
 
             # the move_to position has the player's own piece
             if self.get_player() == move_to_piece[0]:
+                print("Invalid move! The destination position has the player's own piece.")
                 return False
 
             # get all possible moves for the current piece
@@ -411,6 +416,7 @@ class JanggiGame:
                     # if yes, revert the board and return False
                     self._board = copied_board
                     self._check = temp_check  # is_selfcheck() is True, invalid move, revert _check
+                    print("Invalid move! The move puts or leaves the player's general in check.")
                     return False
 
                 # update the turn
@@ -731,14 +737,29 @@ def main():
     game = JanggiGame()
     game.get_base_board()
     game.get_board()
-    print("1", game.make_move("c7", "d7"))  # blue turn
-    print("2", game.make_move("b1", "d4"))  # red turn
-    print("3", game.make_move("h10", "g8"))  # blue turn
-    print("4", game.make_move("d4", "b7"))  # red turn
+    print('1', game.make_move('c7', 'c6'))
+    print('2', game.make_move('c1', 'd3'))
+    print('3', game.make_move('b10', 'd7'))
+    print('4', game.make_move('b3', 'e3'))
+    print('5', game.make_move('c10', 'd8'))
+    print('6', game.make_move('h1', 'g3'))
+    print('7', game.make_move('e7', 'e6'))
+    print('8', game.make_move('e3', 'e6'))
+    print('9', game.make_move('h8', 'c8'))
+    print('10', game.make_move('d3', 'e5'))
+    print('11', game.make_move('c8', 'c4'))
+    print('12', game.make_move('e5', 'c4'))
+    print('13', game.make_move('i10', 'i8'))
+    print('14', game.make_move('g4', 'f4'))
+    print('15', game.make_move('i8', 'f8'))
+    print('16', game.make_move('g3', 'h5'))
+    print('17', game.make_move('h10', 'g8'))
+    print('18', game.make_move('e6', 'e3'))
     game.get_board()
     print("blue in check?", game.is_in_check("blue"))
     print("red in check?", game.is_in_check("red"))
-    print(game.get_game_state())
+    # Game state should be UNFINISHED when a general is in check but not checkmated
+    print("Game state =", game.get_game_state())
 
 
 if __name__ == '__main__':
