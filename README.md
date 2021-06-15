@@ -69,20 +69,21 @@ BC  BE  BH  BG  OO  BG  BE  BH  BC
 - A method called is_in_check that takes as a parameter either ‘red’ or ‘blue’ and returns True if that player is in check, but returns False otherwise.
 - A method called make_move that takes two parameters – strings that represent the square to move from and the square to move to. For example, make_move('b3', 'b10'). If the square being moved from does not contain a piece belonging to the player whose turn it is, or if the indicated move is not legal, or if the game has already been won, then it should just return False. Otherwise it should make the indicated move, remove any captured piece, update the game state if necessary, update whose turn it is, and return True.
 - If the make_move method is passed the same string for the square moved from and to, it should be processed as the player passing their turn, and return True.
-- When make_move is called,
-```
-check game status if still ‘UNFINISHED’ –> if not, invalid move, return False
-check if the player is passing the turn –> if yes, return True
-find indexes for move_from and move_to locations
-check both positions’ occupying pieces if invalid –> if invalid, return False
-call call_moves to check all possible moves for current piece
-if the move_to location is among the possible moves
-save the current board and make the move
-check if the move puts or leaves their general in check.(I call it _selfcheck)
-if not, update the player’s turn
-check if the opposing general is in check
-if yes, call is_checkmate to check if it’s checkmate
-```
+- When make_move is called, the flow is as following:
+<ul>
+check game status if still ‘UNFINISHED’ –> if not, invalid move, return False</br>
+check if the player is passing the turn –> if yes, return True</br>
+find indexes for move_from and move_to locations</br>
+check both positions’ occupying pieces if invalid –> if invalid, return False</br>
+call call_moves to check all possible moves for current piece</br>
+if the move_to location is among the possible moves</br>
+save the current board and make the move</br>
+check if the move puts or leaves their general in check.(I call it _selfcheck)</br>
+if not, update the player’s turn</br>
+check if the opposing general is in check</br>
+if yes, call is_checkmate to check if it’s checkmate</br>
+
+</ul>
 
 ## Piece-specific Rules
 - Generals and Guards aren’t allowed to leave the palace.
